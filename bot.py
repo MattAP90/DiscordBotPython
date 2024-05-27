@@ -187,15 +187,33 @@ async def bdays(ctx):
             bday_list = bday_list + name + " - " + month + "/" + day + "\n"
     await ctx.send(f"{bday_list}")
 
-@bot.command(name='movie', brief='List of Similar Movies', description='Searches for provided movie and returns a list of similar named movies')
-async def movie(ctx):
-    user_movie = ctx.message.content
+@bot.command(name='msearch', brief='Search of Movies', description='Searches for provided movie and returns a list of similar named movies')
+async def msearch(ctx):
+    user_movie = ctx.message.content.split()
+    user_movie.pop(0)
+    user_movie = ' '.join(user_movie)
     movie_list = funcs.get_movies(user_movie)
     if len(movie_list) <= 2000:
         await ctx.send(f'{movie_list}')
 
-@bot.command(name='movieinfo', brief='returns movie info', description='returns movie poster and description of movie title entered, returns multiple is same title')
-async def movieinfo(ctx):
+@bot.command(name='minfo', brief='returns movie info', description='returns movie and description of movie title entered')
+async def minfo(ctx):
+    user_input = ctx.message.content
+    user_input = user_input.split()
+    user_input.pop(0)
+    user_input = ' '.join(user_input)
+    print(user_input)
+    movie_info = funcs.get_movie_info(user_input)
+    if len(movie_info) <= 2000:
+        await ctx.send(f'{movie_info}')
 
+@bot.command(name='mwatch', brief='returns 3 movies and streaming options')
+async def mwatch(ctx):
+    user_input = ctx.message.content
+    user_input = user_input.split()
+    user_input.pop(0)
+    user_input = ' '.join(user_input)
+    movie_streaming = funcs.get_streaming(user_input)
+    await ctx.send(f'{movie_streaming}')
 
 bot.run(TOKEN)
