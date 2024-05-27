@@ -1,3 +1,5 @@
 .env
 files/*
 pics/*
+.DS_Store
+__pycache__/

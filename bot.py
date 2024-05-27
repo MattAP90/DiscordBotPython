@@ -5,17 +5,18 @@ import datetime
 import asyncio
 import os
 import re
+import bot_functions as funcs
 from dotenv import load_dotenv
 
 #initial set up
 load_dotenv()
-TOKEN = os.getenv('TOKEN')
-FILMCHAN = os.getenv('FILM_CHANNEL')
-GENCHAN = os.getenv('GENERAL')
-FILMROLE = os.getenv('FILM_FRIENDS')
-LEMOTE = os.getenv('LEBRON_EMOTE')
-BDAY_PATH = os.getenv('BDAY_PATH')
-FENTE = os.getenv('FENTE')
+TOKEN = str(os.getenv('TOKEN'))
+FILMCHAN = str(os.getenv('FILM_CHANNEL'))
+GENCHAN = str(os.getenv('GENERAL'))
+FILMROLE = str(os.getenv('FILM_FRIENDS'))
+LEMOTE = str(os.getenv('LEBRON_EMOTE'))
+BDAY_PATH = str(os.getenv('BDAY_PATH'))
+PICK_ORDER_PATH = str(os.getenv('PICK_ORDER_PATH'))
 
 intents = discord.Intents.default()
 intents.members = True
@@ -24,11 +25,13 @@ intents.message_content = True
 # event set up and testing
 events = []
 daily = datetime.time(hour=11, minute=0)
-bDay = datetime.time(hour=11, minute=1)
+bDay = datetime.time(hour=11, minute=2)
+movie_remind = datetime.time(hour=11, minute=4)
 movie_time = datetime.time(hour=0, minute=30)
 events.append(daily)
 events.append(movie_time)
 events.append(bDay)
+events.append(movie_remind)
 dates = [{"month": 1, "day": 1, "name": "New Year's", "gif": "https://tenor.com/view/new-years-eve-party-bye2020-gif-19775655"},
          {"month": 1, "day": 15, "name": "MLK Day", "gif": "https://tenor.com/view/martinlutherking-ihaveadream-gif-4834306"},
          {"month": 2, "day": 21, "name": "Shammy Shake Season", "gif": "https://tenor.com/view/shamrock-shake-mcdonalds-nasty-st-patricks-day-my-beloved-gif-21685751"},
@@ -47,7 +50,6 @@ dates = [{"month": 1, "day": 1, "name": "New Year's", "gif": "https://tenor.com/
          {"month": 12, "day": 31, "name": "New Year's Eve", "gif": "https://tenor.com/view/happy-new-year2020-new-years-eve-dance-dancing-lets-dance-gif-13147621"},
          {"month": 12, "day": 21, "name": "Winter Solstice", "gif": "https://tenor.com/view/first-day-of-winter-shortest-day-of-the-year-sleeping-short-day-back-to-bed-gif-19516219"}
          ]
-
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"), intents = intents)
 
@@ -84,6 +86,19 @@ async def bDayCheck():
                     await channel.send(f"Happy Birthday <@!{info[0]}>! \nhttps://tenor.com/view/dog-funny-old-age-aging-gif-15870718538183839440")
     await asyncio.sleep(60)
 
+@tasks.loop(time=movie_remind)
+async def movieRemind():
+    now = datetime.datetime.now().timetuple()
+    if now.tm_wday == 3:
+        pick_person = ''
+        with open(PICK_ORDER_PATH, 'r') as picks:
+            pick_order = picks.readlines()
+            for person in pick_order:
+                pick_info = person.split()
+
+            
+    await asyncio.sleep(60)
+
 @tasks.loop(time=movie_time)
 async def movieNight():
     now = datetime.datetime.now().timetuple()
@@ -95,9 +110,6 @@ async def movieNight():
 @bot.event
 async def on_ready():
     print(f"{bot.user} is online.")
-    dailyCheck.start()
-    bDayCheck.start()
-    movieNight.start()
 
 @bot.command(name="hi", description="Bot says 'hello' back")
 async def hi(ctx):
@@ -175,15 +187,15 @@ async def bdays(ctx):
             bday_list = bday_list + name + " - " + month + "/" + day + "\n"
     await ctx.send(f"{bday_list}")
 
-@bot.event
-async def on_message(blah):
-    msg = blah.content
-    msg = msg.upper()
-    if 'LEBRON' in msg:
-        if blah.author.id == int(FENTE):
-            await blah.reply("https://tenor.com/view/lebron-james-lebron-king-james-lakers-lake-show-gif-5899000798739324893")
-        else:
-            await blah.add_reaction(bot.get_emoji(int(LEMOTE)))
-    await bot.process_commands(blah)
+@bot.command(name='movie', brief='List of Similar Movies', description='Searches for provided movie and returns a list of similar named movies')
+async def movie(ctx):
+    user_movie = ctx.message.content
+    movie_list = funcs.get_movies(user_movie)
+    if len(movie_list) <= 2000:
+        await ctx.send(f'{movie_list}')
+
+@bot.command(name='movieinfo', brief='returns movie info', description='returns movie poster and description of movie title entered, returns multiple is same title')
+async def movieinfo(ctx):
+
 
 bot.run(TOKEN)
