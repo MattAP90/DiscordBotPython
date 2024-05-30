@@ -15,7 +15,7 @@ def get_movie_info(user_input):
     movie_info = ''
     result = details(user_input, "US", "en", True)
     if result is None:
-        movie_info += 'id entered not found, use !movie to find movies and ids\nReturning top search if movie title was entered\n\n'
+        movie_info += 'id entered not found, use !msearch to find movies and ids\nReturning top search if movie title was entered\n\n'
         result = search(user_input, "US", "en", 1, True)
         result = result[0]
         if result.title == 'Movie 43':
