@@ -1,5 +1,6 @@
 .env
 files/*
+bot_files/bdays.txt
 pics/*
 .DS_Store
 __pycache__/
