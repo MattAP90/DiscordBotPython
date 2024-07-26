@@ -1,4 +1,4 @@
-from simplejustwatchapi.justwatch import offers_for_countries, search, details
+from simplejustwatchapi.justwatch import search, details
 
 def get_movies(user_input): 
     movies = ''
